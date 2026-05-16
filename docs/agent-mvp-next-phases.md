@@ -187,6 +187,68 @@ pnpm dev:web
 
 Then select `llm-chat` in the web UI and run a prompt.
 
+## Phase D: Conversation Persistence
+
+Goal: persist Agent conversations on the backend and expose saved history in the web UI.
+
+Backend storage:
+
+```text
+apps/server/src/storage/file-store.ts
+apps/server/src/storage/types.ts
+```
+
+Default local storage path:
+
+```bash
+apps/server/data/agent-store.json
+```
+
+Config override:
+
+```bash
+AGENT_STORAGE_PATH=/absolute/path/to/agent-store.json
+```
+
+The data directory is ignored by git for local MVP usage.
+
+OpenAPI additions:
+
+```text
+GET    /api/conversations
+POST   /api/conversations
+GET    /api/conversations/{conversationId}
+DELETE /api/conversations/{conversationId}
+GET    /api/conversations/{conversationId}/messages
+```
+
+Agent run changes:
+
+- `AgentRunRequest.conversationId` is optional
+- `AgentRunResponse.conversationId` is required
+- a run without `conversationId` creates a new conversation
+- a run with `conversationId` appends user/assistant messages to that conversation
+- normal runs and stream runs are both persisted
+
+Frontend additions:
+
+```text
+apps/web/src/features/agent/ConversationPanel.tsx
+```
+
+Web UI behavior:
+
+- lists saved conversations from the backend
+- supports refresh, new conversation, select conversation, and delete conversation
+- selecting a conversation loads persisted runs into the result panel
+- new stream runs continue the selected conversation when one is active
+
+E2E coverage:
+
+- the smoke test uses a temporary `AGENT_STORAGE_PATH`
+- verifies conversation list/detail/messages after an agent run
+- keeps stream/mock verification in the same test
+
 ## Verification Summary
 
 Commands used:
@@ -206,4 +268,4 @@ Additional E2E coverage:
 - stream endpoint emits `agent.result`
 - mock LLM stream emits `llm.delta`
 - mock LLM output appears in streamed response
-
+- conversation list/detail/messages endpoints return persisted run history

@@ -1,6 +1,7 @@
 export type ServerConfig = {
   port: number;
   serviceName: string;
+  storagePath: string;
   llmChat: {
     apiKey?: string;
     baseUrl: string;
@@ -16,6 +17,7 @@ export function loadServerConfig(): ServerConfig {
   return {
     port: Number(process.env.PORT ?? 3000),
     serviceName: process.env.SERVICE_NAME ?? 'agent-mvp-server',
+    storagePath: process.env.AGENT_STORAGE_PATH ?? new URL('../data/agent-store.json', import.meta.url).pathname,
     llmChat: {
       apiKey: process.env.LLM_CHAT_API_KEY ?? process.env.ANTHROPIC_API_KEY,
       baseUrl: process.env.LLM_CHAT_BASE_URL ?? process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com',

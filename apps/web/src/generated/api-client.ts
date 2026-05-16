@@ -4,10 +4,16 @@
 import axios from 'axios';
 
 import type {
-  CreateAgentRunRequest,
-  CreateAgentRunResponse,
-  GetHealthResponse,
-  ListAgentPluginsResponse,
+  CreateAgentRunOperationRequest,
+  CreateAgentRunOperationResponse,
+  CreateConversationOperationRequest,
+  CreateConversationOperationResponse,
+  DeleteConversationOperationResponse,
+  GetConversationOperationResponse,
+  GetHealthOperationResponse,
+  ListAgentPluginsOperationResponse,
+  ListConversationMessagesOperationResponse,
+  ListConversationsOperationResponse,
 } from '@ai-mind-clone/shared/generated/openapi';
 
 export const api = axios.create({
@@ -16,17 +22,42 @@ export const api = axios.create({
 
 export const agentApiClient = {
   async getHealth() {
-    const response = await api.get<GetHealthResponse>('/api/health');
+    const response = await api.get<GetHealthOperationResponse>('/api/health');
     return response.data;
   },
 
   async listAgentPlugins() {
-    const response = await api.get<ListAgentPluginsResponse>('/api/agent/plugins');
+    const response = await api.get<ListAgentPluginsOperationResponse>('/api/agent/plugins');
     return response.data;
   },
 
-  async createAgentRun(payload: CreateAgentRunRequest) {
-    const response = await api.post<CreateAgentRunResponse>('/api/agent/runs', payload);
+  async createAgentRun(payload: CreateAgentRunOperationRequest) {
+    const response = await api.post<CreateAgentRunOperationResponse>('/api/agent/runs', payload);
+    return response.data;
+  },
+
+  async listConversations() {
+    const response = await api.get<ListConversationsOperationResponse>('/api/conversations');
+    return response.data;
+  },
+
+  async createConversation(payload: CreateConversationOperationRequest) {
+    const response = await api.post<CreateConversationOperationResponse>('/api/conversations', payload);
+    return response.data;
+  },
+
+  async getConversation(conversationId: string) {
+    const response = await api.get<GetConversationOperationResponse>(`/api/conversations/${conversationId}`);
+    return response.data;
+  },
+
+  async deleteConversation(conversationId: string) {
+    const response = await api.delete<DeleteConversationOperationResponse>(`/api/conversations/${conversationId}`);
+    return response.data;
+  },
+
+  async listConversationMessages(conversationId: string) {
+    const response = await api.get<ListConversationMessagesOperationResponse>(`/api/conversations/${conversationId}/messages`);
     return response.data;
   },
 };

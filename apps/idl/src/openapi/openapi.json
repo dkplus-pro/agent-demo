@@ -84,6 +84,132 @@
           }
         }
       }
+    },
+    "/api/conversations": {
+      "get": {
+        "operationId": "listConversations",
+        "summary": "List conversations",
+        "responses": {
+          "200": {
+            "description": "Conversation list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createConversation",
+        "summary": "Create a conversation",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConversationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conversations/{conversationId}": {
+      "get": {
+        "operationId": "getConversation",
+        "summary": "Get a conversation",
+        "parameters": [
+          {
+            "name": "conversationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conversation detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteConversation",
+        "summary": "Delete a conversation",
+        "parameters": [
+          {
+            "name": "conversationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delete result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteConversationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conversations/{conversationId}/messages": {
+      "get": {
+        "operationId": "listConversationMessages",
+        "summary": "List conversation messages",
+        "parameters": [
+          {
+            "name": "conversationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conversation messages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationMessagesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -181,6 +307,9 @@
         "type": "object",
         "required": ["input"],
         "properties": {
+          "conversationId": {
+            "type": "string"
+          },
           "input": {
             "type": "string",
             "minLength": 1
@@ -236,9 +365,12 @@
       },
       "AgentRunResponse": {
         "type": "object",
-        "required": ["runId", "output", "events"],
+        "required": ["runId", "conversationId", "output", "events"],
         "properties": {
           "runId": {
+            "type": "string"
+          },
+          "conversationId": {
             "type": "string"
           },
           "output": {
@@ -249,6 +381,145 @@
             "items": {
               "$ref": "#/components/schemas/AgentTraceEvent"
             }
+          }
+        }
+      },
+      "ConversationSummary": {
+        "type": "object",
+        "required": ["id", "title", "createdAt", "updatedAt"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "ConversationMessage": {
+        "type": "object",
+        "required": ["id", "conversationId", "role", "content", "createdAt"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "conversationId": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["user", "assistant", "system", "tool"]
+          },
+          "content": {
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        }
+      },
+      "StoredAgentRun": {
+        "type": "object",
+        "required": ["id", "conversationId", "input", "output", "status", "events", "createdAt"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "conversationId": {
+            "type": "string"
+          },
+          "input": {
+            "type": "string"
+          },
+          "output": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["running", "completed", "failed"]
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentTraceEvent"
+            }
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "completedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateConversationRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "ConversationListResponse": {
+        "type": "object",
+        "required": ["conversations"],
+        "properties": {
+          "conversations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationSummary"
+            }
+          }
+        }
+      },
+      "ConversationDetailResponse": {
+        "type": "object",
+        "required": ["conversation", "messages", "runs"],
+        "properties": {
+          "conversation": {
+            "$ref": "#/components/schemas/ConversationSummary"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationMessage"
+            }
+          },
+          "runs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StoredAgentRun"
+            }
+          }
+        }
+      },
+      "ConversationMessagesResponse": {
+        "type": "object",
+        "required": ["messages"],
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationMessage"
+            }
+          }
+        }
+      },
+      "DeleteConversationResponse": {
+        "type": "object",
+        "required": ["ok"],
+        "properties": {
+          "ok": {
+            "type": "boolean"
           }
         }
       }

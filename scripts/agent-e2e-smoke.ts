@@ -1,10 +1,15 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 type JsonRecord = Record<string, unknown>;
 
 const port = 3100;
 const baseUrl = `http://127.0.0.1:${port}`;
+const storageDir = mkdtempSync(join(tmpdir(), 'agent-e2e-'));
+const storagePath = join(storageDir, 'store.json');
 let serverProcess = createServerProcess(false);
 let serverOutput = '';
 
@@ -14,6 +19,7 @@ async function main() {
     await assertHealth();
     await assertPlugins();
     await assertAgentRun();
+    await assertPersistence();
     await assertAgentRunStream();
     await assertValidationError();
     await restartServer(true);
@@ -22,6 +28,7 @@ async function main() {
     console.log('Agent E2E smoke test passed.');
   } finally {
     await stopServer();
+    rmSync(storageDir, { recursive: true, force: true });
   }
 }
 
@@ -31,6 +38,7 @@ function createServerProcess(mockEnabled: boolean) {
     detached: true,
     env: {
       ...process.env,
+      AGENT_STORAGE_PATH: storagePath,
       LLM_CHAT_MOCK: String(mockEnabled),
       PORT: String(port),
     },
@@ -108,6 +116,20 @@ async function assertAgentRun() {
   assert.match(response.output, /AGENT E2E/);
   assert.match(response.output, /Agent MVP architecture note/);
   assert.equal(response.events.some((event) => event.type === 'plugin.completed' && typeof event.durationMs === 'number'), true);
+}
+
+async function assertPersistence() {
+  const conversations = await getJson<{ conversations: JsonRecord[] }>('/api/conversations');
+
+  assert.equal(conversations.conversations.length >= 1, true);
+
+  const conversationId = String(conversations.conversations[0]?.id);
+  const detail = await getJson<{ messages: JsonRecord[]; runs: JsonRecord[] }>(`/api/conversations/${conversationId}`);
+  const messages = await getJson<{ messages: JsonRecord[] }>(`/api/conversations/${conversationId}/messages`);
+
+  assert.equal(detail.messages.length >= 2, true);
+  assert.equal(detail.runs.length >= 1, true);
+  assert.equal(messages.messages.length, detail.messages.length);
 }
 
 async function assertValidationError() {

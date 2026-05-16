@@ -10,3 +10,6 @@ apps/*/src/workspace-utils
 apps/*/src/subpackages/*/workspace-utils
 *.local
 *.log
+apps/server/data/*.json
+apps/server/data/*.sqlite
+apps/server/data/*.sqlite-*

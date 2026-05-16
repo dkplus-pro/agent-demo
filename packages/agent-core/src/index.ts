@@ -8,4 +8,5 @@ export type {
   AgentPluginResult,
   AgentRuntimeInput,
   AgentRuntimeRunOptions,
+  AgentRuntimeRunResult,
 } from './types.ts';

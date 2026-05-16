@@ -81,6 +81,11 @@ GET  /api/health
 GET  /api/agent/plugins
 POST /api/agent/runs
 POST /api/agent/runs/stream
+GET  /api/conversations
+POST /api/conversations
+GET  /api/conversations/{conversationId}
+DELETE /api/conversations/{conversationId}
+GET  /api/conversations/{conversationId}/messages
 ```
 
 `POST /api/agent/runs/stream` returns `text/event-stream` with:
@@ -166,6 +171,22 @@ ANTHROPIC_VERSION=2023-06-01
 If API key or model is missing, the plugin is still listed but marked disabled and is not selected by default.
 
 Set `LLM_CHAT_MOCK=true` to enable a local mock LLM response. Mock mode does not require an API key or model and emits `llm.delta` trace events so the web UI can exercise streaming output. Use `LLM_CHAT_MOCK_DELAY_MS` or the plugin's `mockDelayMs` config to slow down each mock chunk.
+
+### Conversation Storage
+
+Agent runs are persisted to a local JSON store by default:
+
+```text
+apps/server/data/agent-store.json
+```
+
+Override the path when needed:
+
+```bash
+AGENT_STORAGE_PATH=/absolute/path/to/agent-store.json
+```
+
+The web app shows saved conversations in the left panel. Selecting one loads its persisted run history, and new runs continue the selected conversation.
 
 ## Commands
 

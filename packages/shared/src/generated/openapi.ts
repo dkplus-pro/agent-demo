@@ -33,6 +33,7 @@ export type AgentPluginListResponse = {
 };
 
 export type AgentRunRequest = {
+  "conversationId"?: string;
   "input": string;
   "pluginNames"?: string[];
   "metadata"?: Record<string, unknown>;
@@ -51,15 +52,80 @@ export type AgentTraceEvent = {
 
 export type AgentRunResponse = {
   "runId": string;
+  "conversationId": string;
   "output": string;
   "events": AgentTraceEvent[];
 };
 
-export type GetHealthRequest = undefined;
-export type GetHealthResponse = HealthResponse;
+export type ConversationSummary = {
+  "id": string;
+  "title": string;
+  "createdAt": string;
+  "updatedAt": string;
+};
 
-export type ListAgentPluginsRequest = undefined;
-export type ListAgentPluginsResponse = AgentPluginListResponse;
+export type ConversationMessage = {
+  "id": string;
+  "conversationId": string;
+  "role": "user" | "assistant" | "system" | "tool";
+  "content": string;
+  "runId"?: string;
+  "createdAt": string;
+};
 
-export type CreateAgentRunRequest = AgentRunRequest;
-export type CreateAgentRunResponse = AgentRunResponse;
+export type StoredAgentRun = {
+  "id": string;
+  "conversationId": string;
+  "input": string;
+  "output": string;
+  "status": "running" | "completed" | "failed";
+  "events": AgentTraceEvent[];
+  "createdAt": string;
+  "completedAt"?: string;
+};
+
+export type CreateConversationRequest = {
+  "title"?: string;
+};
+
+export type ConversationListResponse = {
+  "conversations": ConversationSummary[];
+};
+
+export type ConversationDetailResponse = {
+  "conversation": ConversationSummary;
+  "messages": ConversationMessage[];
+  "runs": StoredAgentRun[];
+};
+
+export type ConversationMessagesResponse = {
+  "messages": ConversationMessage[];
+};
+
+export type DeleteConversationResponse = {
+  "ok": boolean;
+};
+
+export type GetHealthOperationRequest = undefined;
+export type GetHealthOperationResponse = HealthResponse;
+
+export type ListAgentPluginsOperationRequest = undefined;
+export type ListAgentPluginsOperationResponse = AgentPluginListResponse;
+
+export type CreateAgentRunOperationRequest = AgentRunRequest;
+export type CreateAgentRunOperationResponse = AgentRunResponse;
+
+export type ListConversationsOperationRequest = undefined;
+export type ListConversationsOperationResponse = ConversationListResponse;
+
+export type CreateConversationOperationRequest = CreateConversationRequest;
+export type CreateConversationOperationResponse = ConversationDetailResponse;
+
+export type GetConversationOperationRequest = undefined;
+export type GetConversationOperationResponse = ConversationDetailResponse;
+
+export type DeleteConversationOperationRequest = undefined;
+export type DeleteConversationOperationResponse = DeleteConversationResponse;
+
+export type ListConversationMessagesOperationRequest = undefined;
+export type ListConversationMessagesOperationResponse = ConversationMessagesResponse;

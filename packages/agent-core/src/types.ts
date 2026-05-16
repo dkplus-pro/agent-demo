@@ -32,3 +32,9 @@ export type AgentRuntimeInput = {
 export type AgentRuntimeRunOptions = {
   onEvent?: (event: AgentTraceEvent) => void | Promise<void>;
 };
+
+export type AgentRuntimeRunResult = {
+  runId: string;
+  output: string;
+  events: AgentTraceEvent[];
+};

@@ -2,12 +2,22 @@
 // Do not edit it manually.
 
 import type {
-  CreateAgentRunRequest,
-  CreateAgentRunResponse,
-  GetHealthRequest,
-  GetHealthResponse,
-  ListAgentPluginsRequest,
-  ListAgentPluginsResponse,
+  CreateAgentRunOperationRequest,
+  CreateAgentRunOperationResponse,
+  CreateConversationOperationRequest,
+  CreateConversationOperationResponse,
+  DeleteConversationOperationRequest,
+  DeleteConversationOperationResponse,
+  GetConversationOperationRequest,
+  GetConversationOperationResponse,
+  GetHealthOperationRequest,
+  GetHealthOperationResponse,
+  ListAgentPluginsOperationRequest,
+  ListAgentPluginsOperationResponse,
+  ListConversationMessagesOperationRequest,
+  ListConversationMessagesOperationResponse,
+  ListConversationsOperationRequest,
+  ListConversationsOperationResponse,
 } from '@ai-mind-clone/shared/generated/openapi';
 
 export type ApiRoute<Request, Response> = {
@@ -21,13 +31,33 @@ export const apiRoutes = {
   getHealth: {
     method: 'GET',
     path: '/api/health',
-  } satisfies ApiRoute<GetHealthRequest, GetHealthResponse>,
+  } satisfies ApiRoute<GetHealthOperationRequest, GetHealthOperationResponse>,
   listAgentPlugins: {
     method: 'GET',
     path: '/api/agent/plugins',
-  } satisfies ApiRoute<ListAgentPluginsRequest, ListAgentPluginsResponse>,
+  } satisfies ApiRoute<ListAgentPluginsOperationRequest, ListAgentPluginsOperationResponse>,
   createAgentRun: {
     method: 'POST',
     path: '/api/agent/runs',
-  } satisfies ApiRoute<CreateAgentRunRequest, CreateAgentRunResponse>,
+  } satisfies ApiRoute<CreateAgentRunOperationRequest, CreateAgentRunOperationResponse>,
+  listConversations: {
+    method: 'GET',
+    path: '/api/conversations',
+  } satisfies ApiRoute<ListConversationsOperationRequest, ListConversationsOperationResponse>,
+  createConversation: {
+    method: 'POST',
+    path: '/api/conversations',
+  } satisfies ApiRoute<CreateConversationOperationRequest, CreateConversationOperationResponse>,
+  getConversation: {
+    method: 'GET',
+    path: '/api/conversations/{conversationId}',
+  } satisfies ApiRoute<GetConversationOperationRequest, GetConversationOperationResponse>,
+  deleteConversation: {
+    method: 'DELETE',
+    path: '/api/conversations/{conversationId}',
+  } satisfies ApiRoute<DeleteConversationOperationRequest, DeleteConversationOperationResponse>,
+  listConversationMessages: {
+    method: 'GET',
+    path: '/api/conversations/{conversationId}/messages',
+  } satisfies ApiRoute<ListConversationMessagesOperationRequest, ListConversationMessagesOperationResponse>,
 };

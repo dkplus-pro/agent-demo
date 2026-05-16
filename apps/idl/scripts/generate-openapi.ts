@@ -52,6 +52,7 @@ type Operation = {
   method: string;
   path: string;
   operationId: string;
+  pathParams: string[];
   requestType?: string;
   responseType: string;
 };
@@ -158,6 +159,7 @@ function collectOperations(document: OpenApiDocument): Operation[] {
         method,
         path,
         operationId: operation.operationId,
+        pathParams: [...path.matchAll(/\{([^}]+)\}/g)].map((match) => match[1]),
         requestType: requestSchema ? schemaToType(requestSchema) : undefined,
         responseType: schemaToType(responseSchema),
       });
@@ -178,8 +180,8 @@ function generateTypes(document: OpenApiDocument, operations: Operation[]) {
       const requestType = operation.requestType ?? 'undefined';
 
       return [
-        `export type ${name}Request = ${requestType};`,
-        `export type ${name}Response = ${operation.responseType};`,
+        `export type ${name}OperationRequest = ${requestType};`,
+        `export type ${name}OperationResponse = ${operation.responseType};`,
       ].join('\n');
     })
     .join('\n\n');
@@ -191,7 +193,7 @@ function generateWebClient(operations: Operation[]) {
   const imports = operations
     .flatMap((operation) => {
       const name = pascalCase(operation.operationId);
-      return operation.requestType ? [`${name}Request`, `${name}Response`] : [`${name}Response`];
+      return operation.requestType ? [`${name}OperationRequest`, `${name}OperationResponse`] : [`${name}OperationResponse`];
     })
     .sort()
     .join(',\n  ');
@@ -199,14 +201,22 @@ function generateWebClient(operations: Operation[]) {
   const methods = operations
     .map((operation) => {
       const name = pascalCase(operation.operationId);
-      const requestType = `${name}Request`;
-      const responseType = `${name}Response`;
+      const requestType = `${name}OperationRequest`;
+      const responseType = `${name}OperationResponse`;
       const hasBody = operation.requestType !== undefined;
-      const args = hasBody ? `payload: ${requestType}` : '';
+      const pathArgs = operation.pathParams.map((param) => `${param}: string`);
+      const args = [...pathArgs, ...(hasBody ? [`payload: ${requestType}`] : [])].join(', ');
+      const path = operation.pathParams.reduce(
+        (nextPath, param) => nextPath.replace(`{${param}}`, `\${${param}}`),
+        operation.path,
+      );
+      const pathLiteral = operation.pathParams.length > 0 ? `\`${path}\`` : `'${operation.path}'`;
       const axiosCall =
         operation.method === 'get'
-          ? `api.get<${responseType}>('${operation.path}')`
-          : `api.${operation.method}<${responseType}>('${operation.path}', payload)`;
+          ? `api.get<${responseType}>(${pathLiteral})`
+          : hasBody
+            ? `api.${operation.method}<${responseType}>(${pathLiteral}, payload)`
+            : `api.${operation.method}<${responseType}>(${pathLiteral})`;
 
       return `  async ${operation.operationId}(${args}) {\n    const response = await ${axiosCall};\n    return response.data;\n  },`;
     })
@@ -219,7 +229,7 @@ function generateServerContract(operations: Operation[]) {
   const imports = operations
     .flatMap((operation) => {
       const name = pascalCase(operation.operationId);
-      return [`${name}Request`, `${name}Response`];
+      return [`${name}OperationRequest`, `${name}OperationResponse`];
     })
     .sort()
     .join(',\n  ');
@@ -227,8 +237,8 @@ function generateServerContract(operations: Operation[]) {
   const routes = operations
     .map((operation) => {
       const name = pascalCase(operation.operationId);
-      const requestType = `${name}Request`;
-      const responseType = `${name}Response`;
+      const requestType = `${name}OperationRequest`;
+      const responseType = `${name}OperationResponse`;
 
       return `  ${operation.operationId}: {\n    method: '${operation.method.toUpperCase()}',\n    path: '${operation.path}',\n  } satisfies ApiRoute<${requestType}, ${responseType}>,`;
     })

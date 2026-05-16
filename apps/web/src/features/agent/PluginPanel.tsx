@@ -13,7 +13,7 @@ export function PluginPanel() {
   const setPluginConfigValue = useAgentStore((state) => state.setPluginConfigValue);
 
   return (
-    <aside className="flex min-h-0 flex-col border-r border-zinc-200 bg-zinc-100/70">
+    <section className="flex min-h-0 flex-1 flex-col border-t border-zinc-200 bg-zinc-100/70">
       <div className="flex h-14 items-center justify-between border-b border-zinc-200 px-4">
         <div className="flex items-center gap-2 text-sm font-semibold text-zinc-950">
           <Plug className="size-4" />
@@ -81,7 +81,7 @@ export function PluginPanel() {
           );
         })}
       </div>
-    </aside>
+    </section>
   );
 }
 

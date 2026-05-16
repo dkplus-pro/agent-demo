@@ -12,6 +12,11 @@ export function parseAgentRunRequest(value: unknown): AgentRunRequest {
   const pluginNames = value.pluginNames;
   const metadata = value.metadata;
   const pluginConfigs = value.pluginConfigs;
+  const conversationId = value.conversationId;
+
+  if (conversationId !== undefined && typeof conversationId !== 'string') {
+    throw badRequest('Field "conversationId" must be a string.');
+  }
 
   if (pluginNames !== undefined && !isStringArray(pluginNames)) {
     throw badRequest('Field "pluginNames" must be an array of strings.');
@@ -26,6 +31,7 @@ export function parseAgentRunRequest(value: unknown): AgentRunRequest {
   }
 
   return {
+    conversationId,
     input: value.input,
     pluginNames,
     metadata,
