@@ -3,6 +3,7 @@ import type { AgentPluginManifest, AgentTraceEvent } from '@ai-mind-clone/shared
 export type AgentPluginInput = {
   input: string;
   metadata?: Record<string, unknown>;
+  config: Record<string, unknown>;
 };
 
 export type AgentPluginResult = {
@@ -25,4 +26,5 @@ export type AgentRuntimeInput = {
   input: string;
   pluginNames?: string[];
   metadata?: Record<string, unknown>;
+  pluginConfigs?: Record<string, Record<string, unknown>>;
 };

@@ -137,6 +137,31 @@
           },
           "enabled": {
             "type": "boolean"
+          },
+          "inputSchema": {
+            "$ref": "#/components/schemas/AgentPluginInputSchema"
+          },
+          "defaultConfig": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "AgentPluginInputSchema": {
+        "type": "object",
+        "required": ["minLength"],
+        "properties": {
+          "minLength": {
+            "type": "integer"
+          },
+          "maxLength": {
+            "type": "integer"
+          },
+          "requiredMetadataKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -169,6 +194,13 @@
           "metadata": {
             "type": "object",
             "additionalProperties": true
+          },
+          "pluginConfigs": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": true
+            }
           }
         }
       },
@@ -196,6 +228,9 @@
           "data": {
             "type": "object",
             "additionalProperties": true
+          },
+          "durationMs": {
+            "type": "number"
           }
         }
       },

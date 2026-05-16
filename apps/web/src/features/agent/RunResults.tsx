@@ -57,7 +57,10 @@ export function RunResults() {
                       </span>
                     </div>
                     <p className="mt-1 leading-5">{event.message}</p>
-                    {event.pluginName ? <p className="mt-1 font-mono text-[11px] opacity-70">{event.pluginName}</p> : null}
+                    <div className="mt-1 flex items-center justify-between gap-2 font-mono text-[11px] opacity-70">
+                      <span>{event.pluginName ?? 'runtime'}</span>
+                      {event.durationMs !== undefined ? <span>{event.durationMs}ms</span> : null}
+                    </div>
                   </div>
                 ))}
               </div>

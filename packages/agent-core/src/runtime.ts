@@ -4,6 +4,7 @@ import type { AgentRunResponse, AgentTraceEvent } from '@ai-mind-clone/shared/ge
 
 import { AgentPluginRegistry } from './registry.ts';
 import type { AgentRuntimeInput } from './types.ts';
+import { resolvePluginConfig, validatePluginInput } from './validation.ts';
 
 export class AgentRuntime {
   private readonly registry: AgentPluginRegistry;
@@ -37,10 +38,18 @@ export class AgentRuntime {
       const outputs: string[] = [];
 
       for (const plugin of plugins) {
+        const startedAt = performance.now();
+        const config = resolvePluginConfig(plugin, input.pluginConfigs?.[plugin.manifest.name]);
+
+        validatePluginInput(plugin, input.input, input.metadata);
+
         emit({
           type: 'plugin.started',
           pluginName: plugin.manifest.name,
           message: `Plugin ${plugin.manifest.name} started.`,
+          data: {
+            config,
+          },
         });
 
         const result = await plugin.execute(
@@ -52,6 +61,7 @@ export class AgentRuntime {
           {
             input: input.input,
             metadata: input.metadata,
+            config,
           },
         );
 
@@ -62,6 +72,7 @@ export class AgentRuntime {
           pluginName: plugin.manifest.name,
           message: `Plugin ${plugin.manifest.name} completed.`,
           data: result.data,
+          durationMs: Math.round(performance.now() - startedAt),
         });
       }
 

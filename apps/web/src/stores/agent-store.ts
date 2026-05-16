@@ -6,6 +6,7 @@ import { agentApiClient } from '../generated/api-client';
 type AgentStoreState = {
   input: string;
   selectedPluginNames: string[];
+  pluginConfigs: Record<string, Record<string, unknown>>;
   plugins: AgentPluginManifest[];
   runs: AgentRunResponse[];
   healthLabel: string;
@@ -14,6 +15,7 @@ type AgentStoreState = {
   error: string | null;
   setInput: (input: string) => void;
   togglePlugin: (pluginName: string) => void;
+  setPluginConfigValue: (pluginName: string, key: string, value: unknown) => void;
   loadBootstrapData: () => Promise<void>;
   runAgent: () => Promise<void>;
 };
@@ -21,6 +23,7 @@ type AgentStoreState = {
 export const useAgentStore = create<AgentStoreState>((set, get) => ({
   input: 'Summarize the current agent MVP architecture.',
   selectedPluginNames: [],
+  pluginConfigs: {},
   plugins: [],
   runs: [],
   healthLabel: 'checking',
@@ -36,16 +39,31 @@ export const useAgentStore = create<AgentStoreState>((set, get) => ({
 
     set({ selectedPluginNames: nextSelected });
   },
+  setPluginConfigValue: (pluginName, key, value) => {
+    set((state) => ({
+      pluginConfigs: {
+        ...state.pluginConfigs,
+        [pluginName]: {
+          ...(state.pluginConfigs[pluginName] ?? {}),
+          [key]: value,
+        },
+      },
+    }));
+  },
   loadBootstrapData: async () => {
     set({ isLoadingPlugins: true, error: null });
 
     try {
       const [health, pluginList] = await Promise.all([agentApiClient.getHealth(), agentApiClient.listAgentPlugins()]);
       const enabledPluginNames = pluginList.plugins.filter((plugin) => plugin.enabled !== false).map((plugin) => plugin.name);
+      const pluginConfigs = Object.fromEntries(
+        pluginList.plugins.map((plugin) => [plugin.name, plugin.defaultConfig ?? {}]),
+      );
 
       set({
         plugins: pluginList.plugins,
         selectedPluginNames: enabledPluginNames,
+        pluginConfigs,
         healthLabel: `${health.service} ${health.version ?? ''}`.trim(),
       });
     } catch (error) {
@@ -58,7 +76,7 @@ export const useAgentStore = create<AgentStoreState>((set, get) => ({
     }
   },
   runAgent: async () => {
-    const { input, selectedPluginNames } = get();
+    const { input, pluginConfigs, selectedPluginNames } = get();
     const trimmedInput = input.trim();
 
     if (!trimmedInput) {
@@ -72,6 +90,7 @@ export const useAgentStore = create<AgentStoreState>((set, get) => ({
       const response = await agentApiClient.createAgentRun({
         input: trimmedInput,
         pluginNames: selectedPluginNames,
+        pluginConfigs,
       });
 
       set((state) => ({

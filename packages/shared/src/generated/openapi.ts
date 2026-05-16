@@ -18,6 +18,14 @@ export type AgentPluginManifest = {
   "description": string;
   "capabilities": string[];
   "enabled"?: boolean;
+  "inputSchema"?: AgentPluginInputSchema;
+  "defaultConfig"?: Record<string, unknown>;
+};
+
+export type AgentPluginInputSchema = {
+  "minLength": number;
+  "maxLength"?: number;
+  "requiredMetadataKeys"?: string[];
 };
 
 export type AgentPluginListResponse = {
@@ -28,6 +36,7 @@ export type AgentRunRequest = {
   "input": string;
   "pluginNames"?: string[];
   "metadata"?: Record<string, unknown>;
+  "pluginConfigs"?: Record<string, Record<string, unknown>>;
 };
 
 export type AgentTraceEvent = {
@@ -37,6 +46,7 @@ export type AgentTraceEvent = {
   "timestamp": string;
   "pluginName"?: string;
   "data"?: Record<string, unknown>;
+  "durationMs"?: number;
 };
 
 export type AgentRunResponse = {

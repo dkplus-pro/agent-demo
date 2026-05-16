@@ -6,6 +6,12 @@ export const timePlugin: AgentPlugin = {
     description: 'Returns the current server time.',
     capabilities: ['time'],
     enabled: true,
+    inputSchema: {
+      minLength: 1,
+    },
+    defaultConfig: {
+      format: 'iso',
+    },
   },
   async execute() {
     const now = new Date();

@@ -1,6 +1,7 @@
 import type { AgentPluginManifest } from '@ai-mind-clone/shared/generated/openapi';
 
 import type { AgentPlugin } from './types.ts';
+import { AgentInputValidationError } from './validation.ts';
 
 export class AgentPluginRegistry {
   private readonly plugins = new Map<string, AgentPlugin>();
@@ -24,7 +25,7 @@ export class AgentPluginRegistry {
       const plugin = this.plugins.get(name);
 
       if (!plugin) {
-        throw new Error(`Unknown agent plugin: ${name}`);
+        throw new AgentInputValidationError(`Unknown agent plugin: ${name}`);
       }
 
       return plugin;

@@ -11,6 +11,7 @@ export function parseAgentRunRequest(value: unknown): AgentRunRequest {
 
   const pluginNames = value.pluginNames;
   const metadata = value.metadata;
+  const pluginConfigs = value.pluginConfigs;
 
   if (pluginNames !== undefined && !isStringArray(pluginNames)) {
     throw badRequest('Field "pluginNames" must be an array of strings.');
@@ -20,10 +21,15 @@ export function parseAgentRunRequest(value: unknown): AgentRunRequest {
     throw badRequest('Field "metadata" must be an object.');
   }
 
+  if (pluginConfigs !== undefined && !isPluginConfigs(pluginConfigs)) {
+    throw badRequest('Field "pluginConfigs" must be an object keyed by plugin name.');
+  }
+
   return {
     input: value.input,
     pluginNames,
     metadata,
+    pluginConfigs,
   };
 }
 
@@ -39,4 +45,8 @@ function isStringArray(value: unknown): value is string[] {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isPluginConfigs(value: unknown): value is Record<string, Record<string, unknown>> {
+  return isRecord(value) && Object.values(value).every((config) => isRecord(config));
 }
