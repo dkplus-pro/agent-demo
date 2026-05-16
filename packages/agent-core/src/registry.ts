@@ -28,6 +28,10 @@ export class AgentPluginRegistry {
         throw new AgentInputValidationError(`Unknown agent plugin: ${name}`);
       }
 
+      if (plugin.manifest.enabled === false) {
+        throw new AgentInputValidationError(`Agent plugin is disabled: ${name}`);
+      }
+
       return plugin;
     });
   }

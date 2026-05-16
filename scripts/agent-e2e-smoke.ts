@@ -73,10 +73,13 @@ async function assertHealth() {
 async function assertPlugins() {
   const response = await getJson<{ plugins: JsonRecord[] }>('/api/agent/plugins');
   const pluginNames = response.plugins.map((plugin) => plugin.name);
+  const llmChatPlugin = response.plugins.find((plugin) => plugin.name === 'llm-chat');
 
-  assert.deepEqual(pluginNames, ['echo', 'time', 'mock-search']);
+  assert.deepEqual(pluginNames, ['echo', 'time', 'mock-search', 'llm-chat']);
   assert.equal(typeof response.plugins[0]?.inputSchema, 'object');
   assert.equal(typeof response.plugins[0]?.defaultConfig, 'object');
+  assert.equal(llmChatPlugin?.enabled, false);
+  assert.equal(typeof llmChatPlugin?.defaultConfig, 'object');
 }
 
 async function assertAgentRun() {

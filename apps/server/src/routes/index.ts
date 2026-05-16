@@ -6,7 +6,7 @@ import { createPluginRegistry } from '../plugins/index.ts';
 import { createHealthRouter } from './health.ts';
 
 export function registerRoutes(app: Koa, config: ServerConfig) {
-  const registry = createPluginRegistry();
+  const registry = createPluginRegistry(config);
   const healthRouter = createHealthRouter(config);
   const agentRouter = createAgentRouter(registry);
 

@@ -129,6 +129,29 @@ apps/server/src/plugins/index.ts
 
 The web app reads plugin manifests from `GET /api/agent/plugins`, so new registered plugins appear in the plugin panel without frontend hardcoding.
 
+### LLM Chat Plugin
+
+The `llm-chat` plugin calls an OpenAI-compatible Chat Completions API.
+
+Configure it with:
+
+```bash
+LLM_CHAT_API_KEY=...
+LLM_CHAT_BASE_URL=https://api.openai.com/v1
+LLM_CHAT_MODEL=...
+LLM_CHAT_TIMEOUT_MS=30000
+```
+
+Compatibility aliases are also supported:
+
+```bash
+OPENAI_API_KEY=...
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=...
+```
+
+If API key or model is missing, the plugin is still listed but marked disabled and is not selected by default.
+
 ## Commands
 
 Agent MVP:
