@@ -249,6 +249,72 @@ E2E coverage:
 - verifies conversation list/detail/messages after an agent run
 - keeps stream/mock verification in the same test
 
+## Phase E: LLM Provider Boundary
+
+Goal: separate provider-specific model calls from Agent plugins.
+
+New provider files:
+
+```text
+apps/server/src/providers/llm/types.ts
+apps/server/src/providers/llm/anthropic-compatible.ts
+apps/server/src/providers/llm/index.ts
+```
+
+Plugin change:
+
+```text
+apps/server/src/plugins/llm-chat.ts
+```
+
+The `llm-chat` plugin now depends on a generic `LlmProvider` interface instead of owning HTTP request details directly.
+
+Provider responsibilities:
+
+- provider name and capabilities
+- enabled/configured state
+- default model
+- default mock delay
+- chat request execution
+- mock LLM streaming
+- provider response parsing
+- timeout and upstream error normalization
+
+Current provider:
+
+```text
+anthropic-compatible
+```
+
+Configuration aliases:
+
+```bash
+LLM_API_KEY=
+LLM_BASE_URL=
+LLM_MODEL=
+LLM_MOCK=true
+LLM_MOCK_DELAY_MS=700
+LLM_TIMEOUT_MS=30000
+```
+
+Existing aliases remain supported:
+
+```bash
+LLM_CHAT_API_KEY=
+LLM_CHAT_BASE_URL=
+LLM_CHAT_MODEL=
+LLM_CHAT_MOCK=true
+LLM_CHAT_MOCK_DELAY_MS=700
+LLM_CHAT_TIMEOUT_MS=30000
+
+ANTHROPIC_API_KEY=
+ANTHROPIC_BASE_URL=
+ANTHROPIC_MODEL=
+ANTHROPIC_VERSION=2023-06-01
+```
+
+This phase keeps external behavior unchanged while creating a stable insertion point for GLM, OpenAI-compatible, image, and other future providers.
+
 ## Verification Summary
 
 Commands used:

@@ -3,6 +3,7 @@ export type ServerConfig = {
   serviceName: string;
   storagePath: string;
   llmChat: {
+    provider: 'anthropic-compatible';
     apiKey?: string;
     baseUrl: string;
     model?: string;
@@ -19,13 +20,14 @@ export function loadServerConfig(): ServerConfig {
     serviceName: process.env.SERVICE_NAME ?? 'agent-mvp-server',
     storagePath: process.env.AGENT_STORAGE_PATH ?? new URL('../data/agent-store.json', import.meta.url).pathname,
     llmChat: {
-      apiKey: process.env.LLM_CHAT_API_KEY ?? process.env.ANTHROPIC_API_KEY,
-      baseUrl: process.env.LLM_CHAT_BASE_URL ?? process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com',
-      model: process.env.LLM_CHAT_MODEL ?? process.env.ANTHROPIC_MODEL,
+      provider: 'anthropic-compatible',
+      apiKey: process.env.LLM_API_KEY ?? process.env.LLM_CHAT_API_KEY ?? process.env.ANTHROPIC_API_KEY,
+      baseUrl: process.env.LLM_BASE_URL ?? process.env.LLM_CHAT_BASE_URL ?? process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com',
+      model: process.env.LLM_MODEL ?? process.env.LLM_CHAT_MODEL ?? process.env.ANTHROPIC_MODEL,
       anthropicVersion: process.env.LLM_CHAT_ANTHROPIC_VERSION ?? process.env.ANTHROPIC_VERSION ?? '2023-06-01',
-      mockEnabled: process.env.LLM_CHAT_MOCK === 'true',
-      mockDelayMs: Number(process.env.LLM_CHAT_MOCK_DELAY_MS ?? 700),
-      timeoutMs: Number(process.env.LLM_CHAT_TIMEOUT_MS ?? 30_000),
+      mockEnabled: process.env.LLM_MOCK === 'true' || process.env.LLM_CHAT_MOCK === 'true',
+      mockDelayMs: Number(process.env.LLM_MOCK_DELAY_MS ?? process.env.LLM_CHAT_MOCK_DELAY_MS ?? 700),
+      timeoutMs: Number(process.env.LLM_TIMEOUT_MS ?? process.env.LLM_CHAT_TIMEOUT_MS ?? 30_000),
     },
   };
 }
