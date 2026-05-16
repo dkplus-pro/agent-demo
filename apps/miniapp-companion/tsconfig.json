@@ -1,0 +1,5 @@
+{
+  "extends": "@ai-mind-clone/tsconfig/uniapp.json",
+  "include": ["src/**/*.ts", "src/**/*.vue", "src/**/*.d.ts", "vite.config.ts"],
+  "references": []
+}

@@ -1,0 +1,22 @@
+{
+  "extends": "@ai-mind-clone/tsconfig/uniapp.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@ai-mind-clone/request": ["../../packages/request/src/index.ts"],
+      "@ai-mind-clone/utils": ["../../packages/utils/src/index.ts"],
+      "@ai-mind-clone/utils/*": ["../../packages/utils/src/*"],
+      "@ai-mind-clone/ui": ["../../packages/ui/src/index.ts"],
+      "@ai-mind-clone/ui/*": ["../../packages/ui/src/*"]
+    }
+  },
+  "include": [
+    "pages.config.ts",
+    "uni-pages.d.ts",
+    "src/**/*.ts",
+    "src/**/*.vue",
+    "src/**/*.d.ts",
+    "vite.config.ts"
+  ],
+  "references": []
+}

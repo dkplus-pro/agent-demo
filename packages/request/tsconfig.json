@@ -1,0 +1,7 @@
+{
+  "extends": "@ai-mind-clone/tsconfig/base.json",
+  "compilerOptions": {
+    "types": ["@dcloudio/types"]
+  },
+  "include": ["src/**/*.ts"]
+}

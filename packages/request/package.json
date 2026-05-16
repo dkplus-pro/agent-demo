@@ -1,0 +1,20 @@
+{
+  "name": "@ai-mind-clone/request",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@ai-mind-clone/eslint-config": "workspace:*",
+    "@ai-mind-clone/tsconfig": "workspace:*",
+    "@dcloudio/types": "3.4.31",
+    "typescript": "^5.8.3"
+  }
+}

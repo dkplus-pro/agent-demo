@@ -1,0 +1,22 @@
+{
+  "name": "@ai-mind-clone/utils",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./base/*": "./src/base/*.ts",
+    "./feature/*": "./src/feature/*.ts",
+    "./async/*": "./src/async/*.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@ai-mind-clone/eslint-config": "workspace:*",
+    "@ai-mind-clone/tsconfig": "workspace:*",
+    "typescript": "^5.8.3"
+  }
+}

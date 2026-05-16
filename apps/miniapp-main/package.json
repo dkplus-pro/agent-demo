@@ -1,0 +1,29 @@
+{
+  "name": "@ai-mind-clone/miniapp-main",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:mp-weixin": "uni -p mp-weixin",
+    "build": "uni build -p mp-weixin",
+    "build:mp-weixin": "uni build -p mp-weixin",
+    "lint": "eslint .",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-mind-clone/request": "workspace:*",
+    "@ai-mind-clone/ui": "workspace:*",
+    "@ai-mind-clone/utils": "workspace:*",
+    "@dcloudio/uni-app": "3.0.0-alpha-5000820260508001",
+    "@dcloudio/uni-mp-weixin": "3.0.0-alpha-5000820260508001",
+    "vue": "3.4.21"
+  },
+  "devDependencies": {
+    "@ai-mind-clone/eslint-config": "workspace:*",
+    "@ai-mind-clone/tsconfig": "workspace:*",
+    "@dcloudio/types": "3.4.31",
+    "@dcloudio/vite-plugin-uni": "3.0.0-alpha-5000820260508001",
+    "@uni-helper/vite-plugin-uni-pages": "^0.3.24",
+    "vite": "5.2.8"
+  }
+}

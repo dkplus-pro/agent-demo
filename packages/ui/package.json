@@ -1,0 +1,28 @@
+{
+  "name": "@ai-mind-clone/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./base/*": "./src/base/*",
+    "./feature/*": "./src/feature/*",
+    "./async/*": "./src/async/*"
+  },
+  "scripts": {
+    "build": "vue-tsc --noEmit",
+    "lint": "eslint .",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "peerDependencies": {
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@ai-mind-clone/eslint-config": "workspace:*",
+    "@ai-mind-clone/tsconfig": "workspace:*",
+    "@dcloudio/types": "3.4.31",
+    "typescript": "^5.8.3",
+    "vue": "3.4.21",
+    "vue-tsc": "^2.2.10"
+  }
+}
