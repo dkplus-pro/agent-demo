@@ -7,6 +7,7 @@
     "dev": "node --experimental-strip-types src/main.ts",
     "build": "tsc --noEmit",
     "lint": "eslint .",
+    "test": "node --experimental-strip-types --test src/modules/agent/validation.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

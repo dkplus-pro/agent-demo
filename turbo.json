@@ -16,6 +16,9 @@
       "dependsOn": ["^typecheck"],
       "outputs": []
     },
+    "test": {
+      "outputs": []
+    },
     "dev:mp-weixin": {
       "cache": false,
       "persistent": true

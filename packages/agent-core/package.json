@@ -9,6 +9,7 @@
   "scripts": {
     "build": "tsc --noEmit",
     "lint": "eslint .",
+    "test": "node --experimental-strip-types --test src/runtime.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

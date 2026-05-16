@@ -23,6 +23,7 @@
   "devDependencies": {
     "@ai-mind-clone/eslint-config": "workspace:*",
     "@ai-mind-clone/tsconfig": "workspace:*",
+    "@tailwindcss/vite": "^4.3.0",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
     "autoprefixer": "^10.4.21",

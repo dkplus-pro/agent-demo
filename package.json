@@ -15,6 +15,7 @@
     "lint": "turbo run lint && pnpm run lint:style",
     "lint:style": "stylelint \"**/*.{vue,css}\" --ignore-path .stylelintignore --allow-empty-input",
     "prepare": "husky",
+    "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "format": "prettier --write ."
   },
