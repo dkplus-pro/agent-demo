@@ -5,8 +5,11 @@
   "packageManager": "pnpm@10.10.0",
   "scripts": {
     "bootstrap": "pnpm install",
+    "dev:web": "pnpm --filter @ai-mind-clone/web dev",
+    "dev:server": "pnpm --filter @ai-mind-clone/server dev",
     "dev:main": "pnpm --filter @ai-mind-clone/miniapp-main dev:mp-weixin",
     "dev:companion": "pnpm --filter @ai-mind-clone/miniapp-companion dev:mp-weixin",
+    "idl:gen": "pnpm --filter @ai-mind-clone/idl gen",
     "build": "turbo run build",
     "build:mp-weixin": "turbo run build:mp-weixin",
     "lint": "turbo run lint && pnpm run lint:style",

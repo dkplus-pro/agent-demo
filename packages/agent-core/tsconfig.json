@@ -1,0 +1,4 @@
+{
+  "extends": "@ai-mind-clone/tsconfig/base.json",
+  "include": ["src/**/*.ts"]
+}

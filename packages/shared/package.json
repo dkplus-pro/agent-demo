@@ -1,0 +1,20 @@
+{
+  "name": "@ai-mind-clone/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./generated/openapi": "./src/generated/openapi.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@ai-mind-clone/eslint-config": "workspace:*",
+    "@ai-mind-clone/tsconfig": "workspace:*",
+    "typescript": "^5.8.3"
+  }
+}
