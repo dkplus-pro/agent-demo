@@ -5,6 +5,7 @@ type LlmChatConfig = {
   baseUrl: string;
   model?: string;
   anthropicVersion: string;
+  mockEnabled: boolean;
   timeoutMs: number;
 };
 
@@ -16,7 +17,7 @@ type AnthropicMessageResponse = {
 };
 
 export function createLlmChatPlugin(config: LlmChatConfig): AgentPlugin {
-  const enabled = Boolean(config.apiKey && config.model);
+  const enabled = config.mockEnabled || Boolean(config.apiKey && config.model);
 
   return {
     manifest: {
@@ -31,13 +32,17 @@ export function createLlmChatPlugin(config: LlmChatConfig): AgentPlugin {
         maxLength: 12_000,
       },
       defaultConfig: {
-        model: config.model ?? '',
+        model: config.model ?? (config.mockEnabled ? 'mock-anthropic' : ''),
         temperature: 0.2,
         maxTokens: 800,
         systemPrompt: 'You are a concise, practical assistant.',
       },
     },
-    async execute(_context, input) {
+    async execute(context, input) {
+      if (config.mockEnabled) {
+        return runMockLlmChat(context, input.input);
+      }
+
       if (!config.apiKey || !config.model) {
         throw withStatus('LLM chat plugin is not configured. Set LLM_CHAT_API_KEY and LLM_CHAT_MODEL.', 400);
       }
@@ -107,6 +112,41 @@ export function createLlmChatPlugin(config: LlmChatConfig): AgentPlugin {
   };
 }
 
+async function runMockLlmChat(context: Parameters<AgentPlugin['execute']>[0], input: string) {
+  const chunks = [
+    'Mock LLM response: ',
+    'I received your request, ',
+    `"${input}", `,
+    'and streamed this answer through SSE.',
+  ];
+
+  let output = '';
+
+  for (const chunk of chunks) {
+    output += chunk;
+
+    context.emit({
+      type: 'llm.delta',
+      pluginName: 'llm-chat',
+      message: chunk,
+      data: {
+        delta: chunk,
+      },
+    });
+
+    await delay(180);
+  }
+
+  return {
+    output,
+    data: {
+      id: `mock-${context.runId}`,
+      model: 'mock-anthropic',
+      mock: true,
+    },
+  };
+}
+
 function extractMessageContent(response: AnthropicMessageResponse) {
   return (
     response.content
@@ -127,6 +167,12 @@ function stringConfig(value: unknown) {
 
 function numberConfig(value: unknown, fallback: number) {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
 
 function withStatus(message: string, status: number) {

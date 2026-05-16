@@ -56,7 +56,7 @@ export function RunResults() {
                         {new Date(event.timestamp).toLocaleTimeString()}
                       </span>
                     </div>
-                    <p className="mt-1 leading-5">{event.message}</p>
+                    <p className="mt-1 leading-5">{event.type === 'llm.delta' ? String(event.data?.delta ?? '') : event.message}</p>
                     <div className="mt-1 flex items-center justify-between gap-2 font-mono text-[11px] opacity-70">
                       <span>{event.pluginName ?? 'runtime'}</span>
                       {event.durationMs !== undefined ? <span>{event.durationMs}ms</span> : null}

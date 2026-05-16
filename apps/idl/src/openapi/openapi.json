@@ -213,7 +213,7 @@
           },
           "type": {
             "type": "string",
-            "enum": ["run.started", "plugin.started", "plugin.completed", "run.completed", "run.failed"]
+            "enum": ["run.started", "plugin.started", "plugin.completed", "llm.delta", "run.completed", "run.failed"]
           },
           "message": {
             "type": "string"

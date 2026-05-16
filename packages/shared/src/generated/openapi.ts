@@ -41,7 +41,7 @@ export type AgentRunRequest = {
 
 export type AgentTraceEvent = {
   "id": string;
-  "type": "run.started" | "plugin.started" | "plugin.completed" | "run.completed" | "run.failed";
+  "type": "run.started" | "plugin.started" | "plugin.completed" | "llm.delta" | "run.completed" | "run.failed";
   "message": string;
   "timestamp": string;
   "pluginName"?: string;

@@ -6,6 +6,7 @@ export type ServerConfig = {
     baseUrl: string;
     model?: string;
     anthropicVersion: string;
+    mockEnabled: boolean;
     timeoutMs: number;
   };
 };
@@ -19,6 +20,7 @@ export function loadServerConfig(): ServerConfig {
       baseUrl: process.env.LLM_CHAT_BASE_URL ?? process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com',
       model: process.env.LLM_CHAT_MODEL ?? process.env.ANTHROPIC_MODEL,
       anthropicVersion: process.env.LLM_CHAT_ANTHROPIC_VERSION ?? process.env.ANTHROPIC_VERSION ?? '2023-06-01',
+      mockEnabled: process.env.LLM_CHAT_MOCK === 'true',
       timeoutMs: Number(process.env.LLM_CHAT_TIMEOUT_MS ?? 30_000),
     },
   };

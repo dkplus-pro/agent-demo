@@ -149,6 +149,7 @@ LLM_CHAT_API_KEY=...
 LLM_CHAT_BASE_URL=https://api.anthropic.com
 LLM_CHAT_MODEL=...
 LLM_CHAT_ANTHROPIC_VERSION=2023-06-01
+LLM_CHAT_MOCK=false
 LLM_CHAT_TIMEOUT_MS=30000
 ```
 
@@ -162,6 +163,8 @@ ANTHROPIC_VERSION=2023-06-01
 ```
 
 If API key or model is missing, the plugin is still listed but marked disabled and is not selected by default.
+
+Set `LLM_CHAT_MOCK=true` to enable a local mock LLM response. Mock mode does not require an API key or model and emits `llm.delta` trace events so the web UI can exercise streaming output.
 
 ## Commands
 

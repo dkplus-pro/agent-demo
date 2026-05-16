@@ -114,6 +114,10 @@ export const useAgentStore = create<AgentStoreState>((set, get) => ({
                 run.runId === draftRunId
                   ? {
                       ...run,
+                      output:
+                        event.type === 'llm.delta' && typeof event.data?.delta === 'string'
+                          ? `${run.output}${event.data.delta}`
+                          : run.output,
                       events: [...run.events, event],
                     }
                   : run,
@@ -143,6 +147,10 @@ export const useAgentStore = create<AgentStoreState>((set, get) => ({
 export function getEventTone(event: AgentTraceEvent) {
   if (event.type === 'run.failed') {
     return 'border-red-200 bg-red-50 text-red-900';
+  }
+
+  if (event.type === 'llm.delta') {
+    return 'border-zinc-200 bg-zinc-50 text-zinc-700';
   }
 
   if (event.type.endsWith('completed')) {

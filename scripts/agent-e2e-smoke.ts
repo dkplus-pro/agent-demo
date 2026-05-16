@@ -5,25 +5,8 @@ type JsonRecord = Record<string, unknown>;
 
 const port = 3100;
 const baseUrl = `http://127.0.0.1:${port}`;
-const serverProcess = spawn('pnpm', ['--filter', '@ai-mind-clone/server', 'dev'], {
-  cwd: process.cwd(),
-  detached: true,
-  env: {
-    ...process.env,
-    PORT: String(port),
-  },
-  stdio: ['ignore', 'pipe', 'pipe'],
-});
-
+let serverProcess = createServerProcess(false);
 let serverOutput = '';
-
-serverProcess.stdout.on('data', (chunk) => {
-  serverOutput += String(chunk);
-});
-
-serverProcess.stderr.on('data', (chunk) => {
-  serverOutput += String(chunk);
-});
 
 async function main() {
   try {
@@ -33,11 +16,36 @@ async function main() {
     await assertAgentRun();
     await assertAgentRunStream();
     await assertValidationError();
+    await restartServer(true);
+    await assertMockLlmStream();
 
     console.log('Agent E2E smoke test passed.');
   } finally {
     await stopServer();
   }
+}
+
+function createServerProcess(mockEnabled: boolean) {
+  const child = spawn('pnpm', ['--filter', '@ai-mind-clone/server', 'dev'], {
+    cwd: process.cwd(),
+    detached: true,
+    env: {
+      ...process.env,
+      LLM_CHAT_MOCK: String(mockEnabled),
+      PORT: String(port),
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  child.stdout.on('data', (chunk) => {
+    serverOutput += String(chunk);
+  });
+
+  child.stderr.on('data', (chunk) => {
+    serverOutput += String(chunk);
+  });
+
+  return child;
 }
 
 async function waitForHealth() {
@@ -147,6 +155,33 @@ async function assertAgentRunStream() {
   assert.match(body, /STREAM E2E/);
 }
 
+async function assertMockLlmStream() {
+  const plugins = await getJson<{ plugins: JsonRecord[] }>('/api/agent/plugins');
+  const llmChatPlugin = plugins.plugins.find((plugin) => plugin.name === 'llm-chat');
+
+  assert.equal(llmChatPlugin?.enabled, true);
+
+  const response = await fetch(`${baseUrl}/api/agent/runs/stream`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      input: 'mock stream',
+      pluginNames: ['llm-chat'],
+    }),
+  });
+
+  assert.equal(response.ok, true);
+
+  const body = await response.text();
+
+  assert.match(body, /event: agent\.event/);
+  assert.match(body, /llm\.delta/);
+  assert.match(body, /Mock LLM response/);
+  assert.match(body, /event: agent\.result/);
+}
+
 async function getJson<T>(path: string) {
   const response = await fetch(`${baseUrl}${path}`);
 
@@ -192,6 +227,13 @@ async function stopServer() {
       }
     }),
   ]);
+}
+
+async function restartServer(mockEnabled: boolean) {
+  await stopServer();
+  serverOutput = '';
+  serverProcess = createServerProcess(mockEnabled);
+  await waitForHealth();
 }
 
 function delay(ms: number) {
