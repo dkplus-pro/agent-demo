@@ -14,7 +14,7 @@ export type AgentPluginResult = {
 export type AgentContext = {
   runId: string;
   metadata?: Record<string, unknown>;
-  emit: (event: Omit<AgentTraceEvent, 'id' | 'timestamp'>) => AgentTraceEvent;
+  emit: (event: Omit<AgentTraceEvent, 'id' | 'timestamp'>) => Promise<AgentTraceEvent>;
 };
 
 export type AgentPlugin = {

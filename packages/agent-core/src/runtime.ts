@@ -17,7 +17,7 @@ export class AgentRuntime {
     const runId = randomUUID();
     const events: AgentTraceEvent[] = [];
 
-    const emit = (event: Omit<AgentTraceEvent, 'id' | 'timestamp'>) => {
+    const emit = async (event: Omit<AgentTraceEvent, 'id' | 'timestamp'>) => {
       const traceEvent: AgentTraceEvent = {
         ...event,
         id: randomUUID(),
@@ -25,11 +25,11 @@ export class AgentRuntime {
       };
 
       events.push(traceEvent);
-      void options.onEvent?.(traceEvent);
+      await options.onEvent?.(traceEvent);
       return traceEvent;
     };
 
-    emit({
+    await emit({
       type: 'run.started',
       message: 'Agent run started.',
     });
@@ -44,7 +44,7 @@ export class AgentRuntime {
 
         validatePluginInput(plugin, input.input, input.metadata);
 
-        emit({
+        await emit({
           type: 'plugin.started',
           pluginName: plugin.manifest.name,
           message: `Plugin ${plugin.manifest.name} started.`,
@@ -68,7 +68,7 @@ export class AgentRuntime {
 
         outputs.push(result.output);
 
-        emit({
+        await emit({
           type: 'plugin.completed',
           pluginName: plugin.manifest.name,
           message: `Plugin ${plugin.manifest.name} completed.`,
@@ -77,7 +77,7 @@ export class AgentRuntime {
         });
       }
 
-      emit({
+      await emit({
         type: 'run.completed',
         message: 'Agent run completed.',
       });
@@ -88,7 +88,7 @@ export class AgentRuntime {
         events,
       };
     } catch (error) {
-      emit({
+      await emit({
         type: 'run.failed',
         message: error instanceof Error ? error.message : 'Agent run failed.',
       });

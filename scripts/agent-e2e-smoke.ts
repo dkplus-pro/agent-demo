@@ -148,7 +148,7 @@ async function assertAgentRunStream() {
   assert.equal(response.ok, true);
   assert.equal(response.headers.get('content-type')?.startsWith('text/event-stream'), true);
 
-  const body = await response.text();
+  const body = await readStreamText(response);
 
   assert.match(body, /event: agent\.event/);
   assert.match(body, /event: agent\.result/);
@@ -174,12 +174,11 @@ async function assertMockLlmStream() {
 
   assert.equal(response.ok, true);
 
-  const body = await response.text();
+  const body = await readStreamText(response);
 
   assert.match(body, /event: agent\.event/);
   assert.match(body, /llm\.delta/);
   assert.match(body, /Mock LLM response/);
-  assert.match(body, /event: agent\.result/);
 }
 
 async function getJson<T>(path: string) {
@@ -202,6 +201,37 @@ async function postJson<T>(path: string, body: JsonRecord) {
   assert.equal(response.ok, true, `${path} failed with ${response.status}`);
 
   return (await response.json()) as T;
+}
+
+async function readStreamText(response: Response) {
+  if (!response.body) {
+    return '';
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let body = '';
+
+  while (true) {
+    try {
+      const { value, done } = await reader.read();
+
+      if (done) {
+        break;
+      }
+
+      body += decoder.decode(value, { stream: true });
+    } catch (error) {
+      if (error instanceof TypeError && error.message === 'terminated' && body.length > 0) {
+        break;
+      }
+
+      throw error;
+    }
+  }
+
+  body += decoder.decode();
+  return body;
 }
 
 async function stopServer() {

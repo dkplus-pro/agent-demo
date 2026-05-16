@@ -6,6 +6,7 @@ type LlmChatConfig = {
   model?: string;
   anthropicVersion: string;
   mockEnabled: boolean;
+  mockDelayMs: number;
   timeoutMs: number;
 };
 
@@ -35,12 +36,13 @@ export function createLlmChatPlugin(config: LlmChatConfig): AgentPlugin {
         model: config.model ?? (config.mockEnabled ? 'mock-anthropic' : ''),
         temperature: 0.2,
         maxTokens: 800,
+        mockDelayMs: config.mockDelayMs,
         systemPrompt: 'You are a concise, practical assistant.',
       },
     },
     async execute(context, input) {
       if (config.mockEnabled) {
-        return runMockLlmChat(context, input.input);
+        return runMockLlmChat(context, input.input, numberConfig(input.config.mockDelayMs, config.mockDelayMs));
       }
 
       if (!config.apiKey || !config.model) {
@@ -112,7 +114,7 @@ export function createLlmChatPlugin(config: LlmChatConfig): AgentPlugin {
   };
 }
 
-async function runMockLlmChat(context: Parameters<AgentPlugin['execute']>[0], input: string) {
+async function runMockLlmChat(context: Parameters<AgentPlugin['execute']>[0], input: string, delayMs: number) {
   const chunks = [
     'Mock LLM response: ',
     'I received your request, ',
@@ -125,7 +127,7 @@ async function runMockLlmChat(context: Parameters<AgentPlugin['execute']>[0], in
   for (const chunk of chunks) {
     output += chunk;
 
-    context.emit({
+    await context.emit({
       type: 'llm.delta',
       pluginName: 'llm-chat',
       message: chunk,
@@ -134,7 +136,7 @@ async function runMockLlmChat(context: Parameters<AgentPlugin['execute']>[0], in
       },
     });
 
-    await delay(180);
+    await delay(Math.max(0, delayMs));
   }
 
   return {
@@ -143,6 +145,7 @@ async function runMockLlmChat(context: Parameters<AgentPlugin['execute']>[0], in
       id: `mock-${context.runId}`,
       model: 'mock-anthropic',
       mock: true,
+      delayMs,
     },
   };
 }

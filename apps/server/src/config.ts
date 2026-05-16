@@ -7,6 +7,7 @@ export type ServerConfig = {
     model?: string;
     anthropicVersion: string;
     mockEnabled: boolean;
+    mockDelayMs: number;
     timeoutMs: number;
   };
 };
@@ -21,6 +22,7 @@ export function loadServerConfig(): ServerConfig {
       model: process.env.LLM_CHAT_MODEL ?? process.env.ANTHROPIC_MODEL,
       anthropicVersion: process.env.LLM_CHAT_ANTHROPIC_VERSION ?? process.env.ANTHROPIC_VERSION ?? '2023-06-01',
       mockEnabled: process.env.LLM_CHAT_MOCK === 'true',
+      mockDelayMs: Number(process.env.LLM_CHAT_MOCK_DELAY_MS ?? 700),
       timeoutMs: Number(process.env.LLM_CHAT_TIMEOUT_MS ?? 30_000),
     },
   };
