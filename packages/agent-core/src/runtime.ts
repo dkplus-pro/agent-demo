@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import type { AgentRunResponse, AgentTraceEvent } from '@ai-mind-clone/shared/generated/openapi';
 
 import { AgentPluginRegistry } from './registry.ts';
-import type { AgentRuntimeInput } from './types.ts';
+import type { AgentRuntimeInput, AgentRuntimeRunOptions } from './types.ts';
 import { resolvePluginConfig, validatePluginInput } from './validation.ts';
 
 export class AgentRuntime {
@@ -13,7 +13,7 @@ export class AgentRuntime {
     this.registry = registry;
   }
 
-  async run(input: AgentRuntimeInput): Promise<AgentRunResponse> {
+  async run(input: AgentRuntimeInput, options: AgentRuntimeRunOptions = {}): Promise<AgentRunResponse> {
     const runId = randomUUID();
     const events: AgentTraceEvent[] = [];
 
@@ -25,6 +25,7 @@ export class AgentRuntime {
       };
 
       events.push(traceEvent);
+      void options.onEvent?.(traceEvent);
       return traceEvent;
     };
 

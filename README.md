@@ -80,6 +80,15 @@ Current API surface:
 GET  /api/health
 GET  /api/agent/plugins
 POST /api/agent/runs
+POST /api/agent/runs/stream
+```
+
+`POST /api/agent/runs/stream` returns `text/event-stream` with:
+
+```text
+agent.event   # trace event
+agent.result  # final AgentRunResponse
+agent.error   # stream error payload
 ```
 
 ## IDL
@@ -131,23 +140,25 @@ The web app reads plugin manifests from `GET /api/agent/plugins`, so new registe
 
 ### LLM Chat Plugin
 
-The `llm-chat` plugin calls an OpenAI-compatible Chat Completions API.
+The `llm-chat` plugin calls an Anthropic-compatible Messages API.
 
 Configure it with:
 
 ```bash
 LLM_CHAT_API_KEY=...
-LLM_CHAT_BASE_URL=https://api.openai.com/v1
+LLM_CHAT_BASE_URL=https://api.anthropic.com
 LLM_CHAT_MODEL=...
+LLM_CHAT_ANTHROPIC_VERSION=2023-06-01
 LLM_CHAT_TIMEOUT_MS=30000
 ```
 
-Compatibility aliases are also supported:
+Anthropic aliases are also supported:
 
 ```bash
-OPENAI_API_KEY=...
-OPENAI_BASE_URL=https://api.openai.com/v1
-OPENAI_MODEL=...
+ANTHROPIC_API_KEY=...
+ANTHROPIC_BASE_URL=https://api.anthropic.com
+ANTHROPIC_MODEL=...
+ANTHROPIC_VERSION=2023-06-01
 ```
 
 If API key or model is missing, the plugin is still listed but marked disabled and is not selected by default.

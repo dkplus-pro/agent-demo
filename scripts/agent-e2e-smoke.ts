@@ -31,6 +31,7 @@ async function main() {
     await assertHealth();
     await assertPlugins();
     await assertAgentRun();
+    await assertAgentRunStream();
     await assertValidationError();
 
     console.log('Agent E2E smoke test passed.');
@@ -117,6 +118,33 @@ async function assertValidationError() {
 
   assert.equal(response.status, 400);
   assert.match(String(body.message), /at least 2 characters/);
+}
+
+async function assertAgentRunStream() {
+  const response = await fetch(`${baseUrl}/api/agent/runs/stream`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      input: 'stream e2e',
+      pluginNames: ['echo'],
+      pluginConfigs: {
+        echo: {
+          uppercase: true,
+        },
+      },
+    }),
+  });
+
+  assert.equal(response.ok, true);
+  assert.equal(response.headers.get('content-type')?.startsWith('text/event-stream'), true);
+
+  const body = await response.text();
+
+  assert.match(body, /event: agent\.event/);
+  assert.match(body, /event: agent\.result/);
+  assert.match(body, /STREAM E2E/);
 }
 
 async function getJson<T>(path: string) {

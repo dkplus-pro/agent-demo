@@ -3,6 +3,7 @@ import type { AgentPluginListResponse, CreateAgentRunResponse } from '@ai-mind-c
 import Router from 'koa-router';
 
 import { apiRoutes } from '../../generated/api-contract.ts';
+import { closeSse, prepareSse, writeSse } from './sse.ts';
 import { parseAgentRunRequest } from './validation.ts';
 
 export function createAgentRouter(registry: AgentPluginRegistry) {
@@ -20,6 +21,28 @@ export function createAgentRouter(registry: AgentPluginRegistry) {
     const response: CreateAgentRunResponse = await runtime.run(request);
 
     context.body = response;
+  });
+
+  router.post('/api/agent/runs/stream', async (context) => {
+    const request = parseAgentRunRequest(context.request.body);
+
+    prepareSse(context);
+
+    try {
+      const response = await runtime.run(request, {
+        onEvent: (event) => {
+          writeSse(context, 'agent.event', event);
+        },
+      });
+
+      writeSse(context, 'agent.result', response);
+    } catch (error) {
+      writeSse(context, 'agent.error', {
+        message: error instanceof Error ? error.message : 'Agent run failed.',
+      });
+    } finally {
+      closeSse(context);
+    }
   });
 
   return router;

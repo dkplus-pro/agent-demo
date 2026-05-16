@@ -2,6 +2,7 @@ import type { AgentPluginManifest, AgentRunResponse, AgentTraceEvent } from '@ai
 import { create } from 'zustand';
 
 import { agentApiClient } from '../generated/api-client';
+import { streamAgentRun } from '../features/agent/stream-client';
 
 type AgentStoreState = {
   input: string;
@@ -87,15 +88,48 @@ export const useAgentStore = create<AgentStoreState>((set, get) => ({
     set({ isRunning: true, error: null });
 
     try {
-      const response = await agentApiClient.createAgentRun({
-        input: trimmedInput,
-        pluginNames: selectedPluginNames,
-        pluginConfigs,
-      });
+      const draftRunId = `pending-${Date.now()}`;
 
       set((state) => ({
-        runs: [response, ...state.runs].slice(0, 10),
+        runs: [
+          {
+            runId: draftRunId,
+            output: '',
+            events: [],
+          },
+          ...state.runs,
+        ].slice(0, 10),
       }));
+
+      await streamAgentRun(
+        {
+          input: trimmedInput,
+          pluginNames: selectedPluginNames,
+          pluginConfigs,
+        },
+        {
+          onEvent: (event) => {
+            set((state) => ({
+              runs: state.runs.map((run) =>
+                run.runId === draftRunId
+                  ? {
+                      ...run,
+                      events: [...run.events, event],
+                    }
+                  : run,
+              ),
+            }));
+          },
+          onResult: (response) => {
+            set((state) => ({
+              runs: state.runs.map((run) => (run.runId === draftRunId ? response : run)),
+            }));
+          },
+          onError: (message) => {
+            set({ error: message });
+          },
+        },
+      );
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Agent run failed.',

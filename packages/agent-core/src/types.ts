@@ -28,3 +28,7 @@ export type AgentRuntimeInput = {
   metadata?: Record<string, unknown>;
   pluginConfigs?: Record<string, Record<string, unknown>>;
 };
+
+export type AgentRuntimeRunOptions = {
+  onEvent?: (event: AgentTraceEvent) => void | Promise<void>;
+};

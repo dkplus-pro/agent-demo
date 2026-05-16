@@ -4,16 +4,14 @@ type LlmChatConfig = {
   apiKey?: string;
   baseUrl: string;
   model?: string;
+  anthropicVersion: string;
   timeoutMs: number;
 };
 
-type ChatCompletionResponse = {
+type AnthropicMessageResponse = {
   id?: string;
-  choices?: Array<{
-    message?: {
-      content?: string | Array<{ text?: string; type?: string }>;
-    };
-  }>;
+  model?: string;
+  content?: Array<{ text?: string; type?: string }>;
   usage?: Record<string, unknown>;
 };
 
@@ -24,9 +22,9 @@ export function createLlmChatPlugin(config: LlmChatConfig): AgentPlugin {
     manifest: {
       name: 'llm-chat',
       description: enabled
-        ? 'Calls an OpenAI-compatible chat completions API.'
-        : 'Calls an OpenAI-compatible chat completions API when API key and model are configured.',
-      capabilities: ['llm', 'chat', 'openai-compatible'],
+        ? 'Calls an Anthropic-compatible Messages API.'
+        : 'Calls an Anthropic-compatible Messages API when API key and model are configured.',
+      capabilities: ['llm', 'chat', 'anthropic-compatible'],
       enabled,
       inputSchema: {
         minLength: 1,
@@ -52,32 +50,30 @@ export function createLlmChatPlugin(config: LlmChatConfig): AgentPlugin {
       const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
 
       try {
-        const response = await fetch(`${trimTrailingSlash(config.baseUrl)}/chat/completions`, {
+        const response = await fetch(`${trimTrailingSlash(config.baseUrl)}/v1/messages`, {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${config.apiKey}`,
+            'x-api-key': config.apiKey,
+            'anthropic-version': config.anthropicVersion,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             model,
+            system: systemPrompt,
+            max_tokens: maxTokens,
             messages: [
-              {
-                role: 'system',
-                content: systemPrompt,
-              },
               {
                 role: 'user',
                 content: input.input,
               },
             ],
             temperature,
-            max_tokens: maxTokens,
           }),
           signal: controller.signal,
         });
 
-        const body = (await response.json().catch(() => ({}))) as ChatCompletionResponse & {
-          error?: { message?: string };
+        const body = (await response.json().catch(() => ({}))) as AnthropicMessageResponse & {
+          error?: { message?: string; type?: string };
         };
 
         if (!response.ok) {
@@ -94,7 +90,7 @@ export function createLlmChatPlugin(config: LlmChatConfig): AgentPlugin {
           output,
           data: {
             id: body.id,
-            model,
+            model: body.model ?? model,
             usage: body.usage,
           },
         };
@@ -111,22 +107,14 @@ export function createLlmChatPlugin(config: LlmChatConfig): AgentPlugin {
   };
 }
 
-function extractMessageContent(response: ChatCompletionResponse) {
-  const content = response.choices?.[0]?.message?.content;
-
-  if (typeof content === 'string') {
-    return content;
-  }
-
-  if (Array.isArray(content)) {
-    return content
-      .map((part) => part.text)
+function extractMessageContent(response: AnthropicMessageResponse) {
+  return (
+    response.content
+      ?.map((part) => part.text)
       .filter((text): text is string => typeof text === 'string')
       .join('\n')
-      .trim();
-  }
-
-  return '';
+      .trim() ?? ''
+  );
 }
 
 function trimTrailingSlash(value: string) {
