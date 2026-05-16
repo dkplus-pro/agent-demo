@@ -1,0 +1,30 @@
+import type { AgentPlugin } from '@ai-mind-clone/agent-core';
+
+export const mockSearchPlugin: AgentPlugin = {
+  manifest: {
+    name: 'mock-search',
+    description: 'Returns deterministic mock search results for framework testing.',
+    capabilities: ['search', 'mock-data'],
+    enabled: true,
+  },
+  async execute(_context, input) {
+    const normalizedInput = input.input.trim();
+    const results = [
+      {
+        title: 'Agent MVP architecture note',
+        snippet: `Mock result for "${normalizedInput}" covering plugin runtime design.`,
+      },
+      {
+        title: 'OpenAPI contract',
+        snippet: 'Mock result showing the generated API contract is available to both clients and server.',
+      },
+    ];
+
+    return {
+      output: results.map((result, index) => `${index + 1}. ${result.title}: ${result.snippet}`).join('\n'),
+      data: {
+        results,
+      },
+    };
+  },
+};

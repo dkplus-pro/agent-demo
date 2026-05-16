@@ -1,3 +1,9 @@
-const port = Number(process.env.PORT ?? 3000);
+import { createServerApp } from './app.ts';
+import { loadServerConfig } from './config.ts';
 
-console.log(`Agent MVP server scaffold ready on port ${port}`);
+const config = loadServerConfig();
+const app = createServerApp(config);
+
+app.listen(config.port, () => {
+  console.log(`Agent MVP server listening on http://localhost:${config.port}`);
+});

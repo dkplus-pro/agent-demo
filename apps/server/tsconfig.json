@@ -1,6 +1,7 @@
 {
   "extends": "@ai-mind-clone/tsconfig/base.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "lib": ["ES2020"],
     "types": ["node"]
   },
