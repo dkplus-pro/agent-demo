@@ -2,6 +2,7 @@
   "name": "ai-mind-clone-fe-monorepo",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@10.10.0",
   "scripts": {
     "bootstrap": "pnpm install",
@@ -11,11 +12,13 @@
     "dev:companion": "pnpm --filter @ai-mind-clone/miniapp-companion dev:mp-weixin",
     "idl:gen": "pnpm --filter @ai-mind-clone/idl gen",
     "build": "turbo run build",
+    "build:agent": "turbo run build --filter @ai-mind-clone/idl --filter @ai-mind-clone/shared --filter @ai-mind-clone/agent-core --filter @ai-mind-clone/server --filter @ai-mind-clone/web",
     "build:mp-weixin": "turbo run build:mp-weixin",
     "lint": "turbo run lint && pnpm run lint:style",
     "lint:style": "stylelint \"**/*.{vue,css}\" --ignore-path .stylelintignore --allow-empty-input",
     "prepare": "husky",
     "test": "turbo run test",
+    "test:e2e:agent": "node --experimental-strip-types scripts/agent-e2e-smoke.ts",
     "typecheck": "turbo run typecheck",
     "format": "prettier --write ."
   },
